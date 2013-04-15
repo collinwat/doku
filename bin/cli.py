@@ -31,9 +31,7 @@ def print_v2(v2):
 
 
 def print_matrix(a):
-    m = dlx.Matrix(a)
-    s = m.solve()
-    s = m.solution_matrices()
+    s = dlx.UIMatrix(a).solve()
 
     print ""
     print "Matrix:"

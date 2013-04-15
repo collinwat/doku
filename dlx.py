@@ -126,23 +126,16 @@ class ColumnNode(Node):
 class Matrix(object):
 
     def __init__(self, source):
-        self._source = source
-        self.build()
+        self.solutions = None
+        self.build(source)
 
-    @property
-    def solutions(self):
-        return getattr(self, '_solutions', [])
-
-    @property
-    def is_solved(self):
-        return hasattr(self, '_solutions')
-
-    def build(self):
+    def build(self, source):
+        self.solutions = None
         root = ColumnNode('root')
         columns = [root]
         self.root = root
 
-        for i, row in enumerate(self._source):
+        for i, row in enumerate(source):
             node = None
 
             for j, cell in enumerate(row):
@@ -160,6 +153,7 @@ class Matrix(object):
                 column = columns[j + 1]
                 cell = Node(name=name, column=column)
                 cell.row_index = i
+                cell.column_index = j
                 column.addAbove(cell)
 
                 if not node:
@@ -168,10 +162,13 @@ class Matrix(object):
                     node.addRight(cell)
 
     def solve(self, force=False):
-        if self.is_solved and not force:
+        if force:
+            self.solutions = None
+
+        if self.solutions is not None:
             return self.solutions
 
-        self._solutions = []
+        self.solutions = []
         self.search()
         return self.solutions
 
@@ -199,10 +196,30 @@ class Matrix(object):
         column.attach()
         return self
 
+
+class UIMatrix(Matrix):
+
+    @property
     def solution_matrices(self):
+        if getattr(self, '_solution_matrices', None):
+            return self._solution_matrices
+
         matrices = []
         for s in self.solutions:
             s = sorted(s, key=lambda n: n.row_index)
-            s = map(lambda n: self._source[n.row_index], s)
+            s = map(lambda n: self.source[n.row_index], s)
             matrices.append(s)
         return matrices
+
+    def build(self, source):
+        self._solution_matrices = None
+        source = list(source)
+        super(UIMatrix, self).build(source)
+        self.source = source
+
+    def solve(self, force=False):
+        if force:
+            self._solution_matrices = None
+
+        super(UIMatrix, self).solve(force=force)
+        return self.solution_matrices
