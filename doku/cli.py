@@ -1,33 +1,28 @@
 """
 Usage:
-    doku print_all
-     print_dlx
-     print_game INDEX
-     write_exact_cover
-     write_exact_cover4
-     write_exact_cover9
+    doku (-h | --help)
+    doku (-v | --version)
+    doku print_dlx
+    doku save_cover_csv (-4 | -9) FILE
+
+Options:
+    -h, --help
+    -v, --version
 """
 
+from __future__ import with_statement
 import os
-import sys
-import linecache
+import pkg_resources
 
-BIN = os.path.abspath(os.path.dirname(__file__))
-ROOT = os.path.dirname(BIN)
+from docopt import docopt
 
-if ROOT not in sys.path:
-    sys.path.insert(0, ROOT)
-
-import dlx
-import game
-import parse
-import sudoku
+from doku import dlx
+from doku import sudoku
 
 
-BIN = os.path.abspath(os.path.dirname(__file__))
-ROOT = os.path.dirname(BIN)
-DATA = os.path.join(ROOT, 'data')
-GAMES = os.path.join(DATA, 'games.txt')
+def resource_path(*args):
+    args = os.path.join(*args)
+    return pkg_resources.resource_filename('doku', args)
 
 
 def print_v2(v2):
@@ -56,7 +51,7 @@ def print_matrix(a):
         print ""
 
 
-def print_dlx():
+def print_dlx(opts):
     print_matrix([[0, 0, 1, 0, 1, 1, 0],
                   [1, 0, 0, 1, 0, 0, 1],
                   [0, 1, 1, 0, 0, 1, 0],
@@ -78,57 +73,22 @@ def print_dlx():
                   [0, 1, 0]])
 
 
-def print_all():
-    with open(GAMES, 'r') as fd:
-        lines = fd.readlines()
-
-    parser = parse.StringParser()
-    for i, line in enumerate(lines):
-        if i != 0:
-            print ''
-            print '======================'
-            print ''
-        print 'Game %s:' % (i + 1)
-        print ''
-        print game.Game(parser.parse(line)).text
-
-
-def print_game(pos):
-    parser = parse.StringParser()
-    line = linecache.getline(GAMES, pos)
-    grid = parser.parse(line)
-    print 'Game %s:' % pos
-    print ''
-    print game.Game(grid).text
-
-
-def write_exact_cover(*args):
-    if len(args) < 1:
-        args = (4, 9)
-
-    for size in args:
-        filename = os.path.join(DATA, 'exact-cover-%sx%s.csv' % (size, size))
-        sudoku.ExactCoverTable(size).write_csv(filename)
-
-commands = {
-    'print_all': print_all,
-    'print_dlx': print_dlx,
-    'write_exact_cover': write_exact_cover,
-    'write_exact_cover4': lambda: write_exact_cover(4),
-    'write_exact_cover9': lambda: write_exact_cover(9),
-}
+def save_cover_csv(opts):
+    size = 4 if opts['-4'] else 9
+    sudoku.ExactCoverTable(size).write_csv(opts['FILE'])
 
 
 def main():
-    args = sys.argv[1:]
-    length = len(args)
-    if length == 1 and args[0] in commands:
-        commands[args[0]]()
-    elif length == 2 and args[0] == 'print_game' and args[1]:
-        print_game(int(args[1]))
-    else:
-        print __doc__.strip()
-        print ""
+    args = docopt(__doc__)
+
+    commands = {
+        "print_dlx": print_dlx,
+        "save_cover_csv": save_cover_csv
+    }
+
+    for command in commands:
+        if args.get(command):
+            commands[command](args)
 
 
 if __name__ == '__main__':
