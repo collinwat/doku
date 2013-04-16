@@ -37,7 +37,7 @@ setup(name='doku',
       },
       entry_points={
           'console_scripts': [
-              'xpsudoku = xpsudoku.cli:main',
+              'doku = doku.cli:main',
           ]
       },
       classifiers=[
