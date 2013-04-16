@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 """
 Usage:
-    test.py print_all
-    test.py print_dlx
-    test.py print_game INDEX
+    cli.py print_all
+    cli.py print_dlx
+    cli.py print_game INDEX
+    cli.py write_exact_cover
+    cli.py write_exact_cover4
+    cli.py write_exact_cover9
 """
 
 import os
@@ -19,10 +22,13 @@ if ROOT not in sys.path:
 import dlx
 import game
 import parse
+import sudoku
 
 
-ROOT = os.path.abspath(os.path.dirname(__file__))
-GAMES = os.path.join(ROOT, 'data', 'games.txt')
+BIN = os.path.abspath(os.path.dirname(__file__))
+ROOT = os.path.dirname(BIN)
+DATA = os.path.join(ROOT, 'data')
+GAMES = os.path.join(DATA, 'games.txt')
 
 
 def print_v2(v2):
@@ -97,13 +103,29 @@ def print_game(pos):
     print game.Game(grid).text
 
 
+def write_exact_cover(*args):
+    if len(args) < 1:
+        args = (4, 9)
+
+    for size in args:
+        filename = os.path.join(DATA, 'exact-cover-%sx%s.csv' % (size, size))
+        sudoku.ExactCoverTable(size).write_csv(filename)
+
+commands = {
+    'print_all': print_all,
+    'print_dlx': print_dlx,
+    'write_exact_cover': write_exact_cover,
+    'write_exact_cover4': lambda: write_exact_cover(4),
+    'write_exact_cover9': lambda: write_exact_cover(9),
+}
+
+
 def main():
     args = sys.argv[1:]
-    if len(args) == 1 and args[0] == 'print_all':
-        print_all()
-    elif len(args) == 1 and args[0] == 'print_dlx':
-        print_dlx()
-    elif len(args) == 2 and args[0] == 'print_game' and args[1]:
+    length = len(args)
+    if length == 1 and args[0] in commands:
+        commands[args[0]]()
+    elif length == 2 and args[0] == 'print_game' and args[1]:
         print_game(int(args[1]))
     else:
         print __doc__.strip()
