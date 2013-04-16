@@ -1,3 +1,4 @@
+import os
 from setuptools import setup, find_packages
 
 required = [
@@ -14,15 +15,16 @@ dev = [
     "readline"
 ]
 
-description = ""
-readme = open('README.rst')
-description = readme.read()
-readme.close()
+readme = ''
+
+# TODO: Figure out why this file is missing when running `tox`
+if os.path.isfile('README.rst'):
+    readme = open('README.rst').read()
 
 setup(name='doku',
       version='0.1',
       description='A general sudoku library with a cli interface',
-      long_description=description,
+      long_description=readme,
       author='Collin Watson',
       author_email='collinwat@gmail.com',
       url='https://github.com/collinwat/doku',

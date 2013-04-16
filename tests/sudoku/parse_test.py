@@ -1,8 +1,12 @@
+from __future__ import with_statement
 import unittest
-from sudoku import StringParser
+from pytest import raises
+
+from doku.sudoku import StringParser
 
 
 class StringParserTestCase(unittest.TestCase):
 
     def test_invalid_small_size(self):
-        assert StringParser(0)
+        with raises(ValueError):
+            StringParser(0)

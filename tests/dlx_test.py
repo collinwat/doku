@@ -1,5 +1,5 @@
 import unittest
-import dlx
+from doku import dlx
 
 
 class NodeTestCase(unittest.TestCase):

@@ -8,6 +8,6 @@ clean:
 	@find . -name "__pycache__" -exec rm -rf {} \;
 
 tests:
-	@python -m unittest discover tests '*_test.py'
+	@tox
 
 .PHONY: all print.dlx tests
