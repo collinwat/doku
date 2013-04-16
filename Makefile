@@ -14,4 +14,4 @@ data:
 tests:
 	@tox
 
-.PHONY: all print.dlx tests
+.PHONY: all deps clean data tests
