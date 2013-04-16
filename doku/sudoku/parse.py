@@ -1,11 +1,28 @@
 import utils
 
 
-class UnknownCharacterError(ValueError):
+class ParseError(ValueError):
+    def __init__(self, value):
+        self.value = value
+
+        fmt = getattr(self, 'FORMAT', None)
+        message = getattr(self, 'MESSAGE', None)
+
+        if fmt:
+            message = fmt % self.value
+
+        if message:
+            super(ParseError, self).__init__(message)
+        else:
+            super(ParseError, self).__init__()
+
+
+class UnknownCharacterError(ParseError):
     FORMAT = 'Parser does not know how to handle the "%s" character'
 
-    def __init__(self, character):
-        super(UnknownCharacterError, self).__init__(self.FORMAT % character)
+
+class IncompleteError(ParseError):
+    FORMAT = 'Board is smaller than expected and is incomplete: "%s"'
 
 
 class StringParser(object):
@@ -34,7 +51,8 @@ class StringParser(object):
 
     def iparse(self, line):
         if not line or len(line) < self.length:
-            return
+            raise IncompleteError(line)
+
         row = 0
         column = 0
         count = 0
@@ -53,12 +71,12 @@ class StringParser(object):
             count += 1
             if column == self.size - 1:
                 row += 1
-                column = 1
+                column = 0
             else:
                 column += 1
 
             if count == self.length:
-                return
+                break
 
     def parse_char(self, value):
         if value == '.':
