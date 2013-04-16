@@ -1,7 +1,7 @@
 all: deps
 
 deps:
-	python setup.py develop easy_install xpsudoku[test] xpsudoku[dev]
+	python setup.py develop easy_install doku[test] doku[dev]
 
 clean:
 	@find . -name "*.pyc" -exec rm -f {} \;
