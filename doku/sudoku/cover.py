@@ -1,5 +1,5 @@
-import math
 import csv
+import utils
 
 
 class ExactCoverTable(object):
@@ -13,16 +13,8 @@ class ExactCoverTable(object):
         - Each column must contain each number exactly once
         - Each box must contain each number exactly once
         """
-
-        result = math.sqrt(size)
-        box_size = int(result)
-
-        if box_size != result:
-            msg = 'Size is not a perfect square. Cannot find a box size.'
-            raise ValueError(msg)
-
         self.size = size
-        self.box_size = box_size
+        self.box_size = utils.box_size(size)
 
         # Each sudoku rule has size*size choices.
         self.choices = size * size

@@ -1,12 +1,11 @@
-#!/usr/bin/env python
 """
 Usage:
-    cli.py print_all
-    cli.py print_dlx
-    cli.py print_game INDEX
-    cli.py write_exact_cover
-    cli.py write_exact_cover4
-    cli.py write_exact_cover9
+    doku print_all
+     print_dlx
+     print_game INDEX
+     write_exact_cover
+     write_exact_cover4
+     write_exact_cover9
 """
 
 import os
