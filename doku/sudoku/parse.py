@@ -49,6 +49,9 @@ class StringParser(object):
         self.length = size * size
         self.box_size = utils.box_size(size)
 
+    def parse(self, line):
+        return tuple(self.iparse(line))
+
     def iparse(self, line):
         if not line or len(line) < self.length:
             raise IncompleteError(line)
