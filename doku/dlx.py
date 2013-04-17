@@ -124,10 +124,14 @@ class ColumnNode(Node):
 
 
 class Matrix(object):
+    root = None
+    solutions = None
 
-    def __init__(self, source):
-        self.solutions = None
-        self.build(source)
+    def __init__(self, source=None):
+        self.hidden = []
+
+        if source:
+            self.build(source)
 
     def build(self, source):
         self.solutions = None
@@ -195,6 +199,28 @@ class Matrix(object):
 
         column.attach()
         return self
+
+    def hide(self, column):
+        if column in self.hidden:
+            return
+
+        column.detach()
+        for row in column:
+            for node in row:
+                node.column.detach()
+
+        self.hidden.append(column)
+
+    def show(self, column):
+        if column not in self.hidden:
+            return
+
+        for row in column:
+            for node in row:
+                node.column.attach()
+
+        column.attach()
+        self.hidden.remove(column)
 
 
 class UIMatrix(Matrix):

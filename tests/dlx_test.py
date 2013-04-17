@@ -488,3 +488,78 @@ class MatrixTestCase(unittest.TestCase):
 
         self.assertEqual(result1, [11, 33])
         self.assertEqual(result2, [21, 42])
+
+    def test_hide(self):
+        m = dlx.Matrix([
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 1, 1],
+            [1, 0, 0]
+        ])
+
+        c1 = m.root.right
+        c2 = c1.right
+        c3 = c2.right
+        m.hide(c1)
+
+        assert c1 in m.hidden
+        assert m.root.right == c2
+        assert m.root.left == c3
+        assert c2.left == m.root
+        assert c3.right == m.root
+
+    def test_hide_empty(self):
+        m = dlx.Matrix([
+            [1, 1, 0],
+            [0, 1, 0],
+            [0, 0, 1],
+            [1, 0, 1]
+        ])
+
+        c1 = m.root.right
+        m.hide(c1)
+        assert c1 in m.hidden
+        assert m.root.right == m.root
+        assert m.root.left == m.root
+
+    def test_show(self):
+        m = dlx.Matrix([
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 1, 1],
+            [1, 0, 0]
+        ])
+
+        c1 = m.root.right
+        c2 = c1.right
+        c3 = c2.right
+        m.hide(c1)
+        m.show(c1)
+
+        assert c1 not in m.hidden
+        assert m.root.right == c1
+        assert m.root.left == c3
+        assert c2.left == c1
+        assert c3.right == m.root
+        assert c1 not in m.hidden
+
+    def test_show_empty(self):
+        m = dlx.Matrix([
+            [1, 1, 0],
+            [0, 1, 0],
+            [0, 0, 1],
+            [1, 0, 1]
+        ])
+
+        c1 = m.root.right
+        c2 = c1.right
+        c3 = c2.right
+        m.hide(c1)
+        m.show(c1)
+
+        assert c1 not in m.hidden
+        assert m.root.right == c1
+        assert m.root.left == c3
+        assert c2.left == c1
+        assert c3.right == m.root
+        assert c1 not in m.hidden
