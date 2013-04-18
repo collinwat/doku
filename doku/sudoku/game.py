@@ -1,6 +1,6 @@
-import cover
+import doku.utils as utils
+import solve
 import parse
-import utils
 
 
 class Board(object):
@@ -29,7 +29,7 @@ class Board(object):
         return self._solutions
 
     def rebuild(self):
-        self.solver = cover.DLXSolver(self.size, known=self.known)
+        self.solver = solve.DLXSolver(self.size, known=self.known)
         self._solutions = None
         self.reset()
 

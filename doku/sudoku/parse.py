@@ -1,4 +1,4 @@
-import utils
+import doku.utils as utils
 
 
 class ParseError(ValueError):

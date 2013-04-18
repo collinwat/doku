@@ -1,7 +1,7 @@
 import csv
 
 import doku.dlx as dlx
-import utils
+import doku.utils as utils
 
 
 class ExactCoverTable(object):
