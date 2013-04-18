@@ -7,14 +7,39 @@ puzzles as well as sudoku variants.
 A simple cli is provided to work with sudoku puzzles on the command line
 as well as provide hooks into the problem solving process.
 
-Solver
-------
 The Sudoku puzzle solver uses the Dancing Links technique to implement
 Knuth's Algorithm X.
 
 **Warning:** The current dlx technique was implmented as a learning exercise. There
 is probably a more optimal solution. This means that the internals of this
 library are in flux and should not be considered production ready.
+
+Install
+-------
+
+Quick:
+
+    pip install git+git://github.com/collinwat/doku.git
+
+
+Manual:
+
+    git clone git://github.com/collinwat/doku.git
+
+    cd doku
+
+    [sudo] python setup.py develop
+
+Usage
+-----
+
+Overview:
+
+    doku
+
+Solve a puzzle:
+
+    doku solve .3...1....4...3.
 
 References
 ----------
