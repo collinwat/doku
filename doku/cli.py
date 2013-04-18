@@ -10,8 +10,6 @@ Options:
 """
 
 from __future__ import with_statement
-import os
-import pkg_resources
 
 from docopt import docopt
 
@@ -19,9 +17,20 @@ from doku import dlx
 from doku import sudoku
 
 
-def resource_path(*args):
-    args = os.path.join(*args)
-    return pkg_resources.resource_filename('doku', args)
+SUDOKU_EXAMPLE_4 = '.3..' \
+                   '.1..' \
+                   '..4.' \
+                   '..3.'
+
+SUDOKU_EXAMPLE_9 = '.........' \
+                   '.....3.85' \
+                   '..1.2....' \
+                   '...5.7...' \
+                   '..4...1..' \
+                   '.9.......' \
+                   '5......73' \
+                   '..2.1....' \
+                   '....4...9'
 
 
 def print_v2(v2):
@@ -81,20 +90,9 @@ def solve(opts):
     if opts.get('BOARD'):
         board = sudoku.Board(opts['BOARD'])
     if opts['-4']:
-        board = sudoku.Board('.3..'
-                             '.1..'
-                             '..4.'
-                             '..3.')
+        board = sudoku.Board(SUDOKU_EXAMPLE_4)
     else:
-        board = sudoku.Board('.........'
-                             '.....3.85'
-                             '..1.2....'
-                             '...5.7...'
-                             '..4...1..'
-                             '.9.......'
-                             '5......73'
-                             '..2.1....'
-                             '....4...9')
+        board = sudoku.Board(SUDOKU_EXAMPLE_9)
 
     print "Board:"
     print "==========="
