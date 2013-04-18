@@ -29,12 +29,6 @@ class ExactCoverTable(object):
         # constraints
         self.constraints = self.rules * self.choices
 
-        self.width = self.constraints
-        self.height = self.size * self.size * self.size
-
-        # Get the column offsets for each rule constraint set
-        self.offset = [i * self.choices for i in xrange(self.rules)]
-
     def __iter__(self):
         for solution in self.isolutions:
             index = self.solution_index(solution)
@@ -83,7 +77,7 @@ class ExactCoverTable(object):
     def row(self, solution):
         (cell, row, column, box) = self.solution_columns(solution)
 
-        r = [None] * self.width
+        r = [None] * self.constraints
         r[cell] = 1
         r[row] = 1
         r[column] = 1
@@ -124,28 +118,24 @@ class ExactCoverTable(object):
 class Solver(dlx.Matrix):
 
     def __init__(self, size, known=None):
-        self.known = known
-        super(Solver, self).__init__(ExactCoverTable(size))
+        self.known = set()
+        super(Solver, self).__init__(ExactCoverTable(size), known=known)
 
-    def build(self, table):
+    def build(self, table, known=None):
         """ This is an optimized version of the dlx Matrix implementation.
         It is optimized because the empty cells are not iterated over. The
         filled nodes are the only nodes in the matrix touched.
         """
         self.table = table
         self.solutions = None
-        self.root = dlx.ColumnNode('root')
+        self.root = dlx.RootNode()
 
-        node = None
         columns = {}
-
-        for i in xrange(table.width):
-            name = 'c%s' % (i + 1)
-            column = dlx.ColumnNode(name)
-            if node:
-                node.addRight(column)
+        for i in xrange(table.constraints):
+            column = dlx.ColumnNode('c%s' % (i + 1))
+            column.index = i
+            self.root.addLeft(column)
             columns[i] = column
-            node = column
 
         node = None
         for i, solution in enumerate(table.isolutions):
@@ -164,7 +154,20 @@ class Solver(dlx.Matrix):
                 else:
                     node.addLeft(cell)
 
-        if self.known:
-            for solution in self.known:
-                column = self.table.solution_columns(solution)[0]
-                self.hide(columns[column])
+        for solution in known or []:
+            self.add_known(solution)
+
+    def add_known(self, solution):
+        row_index = self.table.solution_index(solution)
+        column_index = self.table.solution_columns(solution)[0]
+        cell = self.cell(row_index, column_index)
+
+        if cell and cell not in self.known:
+            self.known.add(cell)
+            self.cover(cell)
+
+    def normalize_solution(self, solution):
+        solution = solution or []
+        solution = list(set(self.known).union(set(solution)))
+        solution.sort(key=lambda n: '%s%s' % n.solution[:2])
+        return [node.solution for node in solution]

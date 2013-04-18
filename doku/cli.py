@@ -1,13 +1,12 @@
 """
 Usage:
     doku (-h | --help)
-    doku (-v | --version)
-    doku print_dlx
-    doku save_cover_csv (-4 | -9) FILE
+    doku dlx_example
+    doku exact_cover_csv (-4 | -9) FILE
+    doku solve [(-4 | -9)] [BOARD]
 
 Options:
     -h, --help
-    -v, --version
 """
 
 from __future__ import with_statement
@@ -51,7 +50,7 @@ def print_matrix(a):
         print ""
 
 
-def print_dlx(opts):
+def dlx_example(opts):
     print_matrix([[0, 0, 1, 0, 1, 1, 0],
                   [1, 0, 0, 1, 0, 0, 1],
                   [0, 1, 1, 0, 0, 1, 0],
@@ -73,17 +72,53 @@ def print_dlx(opts):
                   [0, 1, 0]])
 
 
-def save_cover_csv(opts):
+def exact_cover_csv(opts):
     size = 4 if opts['-4'] else 9
     sudoku.ExactCoverTable(size).write_csv(opts['FILE'])
+
+
+def solve(opts):
+    if opts.get('BOARD'):
+        board = sudoku.Board(opts['BOARD'])
+    if opts['-4']:
+        board = sudoku.Board('.3..'
+                             '.1..'
+                             '..4.'
+                             '..3.')
+    else:
+        board = sudoku.Board('.........'
+                             '.....3.85'
+                             '..1.2....'
+                             '...5.7...'
+                             '..4...1..'
+                             '.9.......'
+                             '5......73'
+                             '..2.1....'
+                             '....4...9')
+
+    print "Board:"
+    print "==========="
+    print board.text
+    for i, solution in enumerate(board.solutions):
+        board.solve(index=i)
+        print ""
+        print ""
+        print "Solution %s:" % (i + 1)
+        print "==========="
+        print ""
+        print board.line
+        print ""
+        print board.text
+        board.reset()
 
 
 def main():
     args = docopt(__doc__)
 
     commands = {
-        "print_dlx": print_dlx,
-        "save_cover_csv": save_cover_csv
+        "dlx_example": dlx_example,
+        "exact_cover_csv": exact_cover_csv,
+        "solve": solve,
     }
 
     for command in commands:
