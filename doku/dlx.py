@@ -7,6 +7,7 @@ class Node(object):
                  right=None,
                  up=None,
                  down=None):
+        self.attached = True
         self.name = name
         self.column = column or self
         self.left = left or self
@@ -67,11 +68,13 @@ class Node(object):
         self.detach_column()
 
     def detach_column(self):
-        self.up.down = self.down
-        self.down.up = self.up
+        if self.attached:
+            self.attached = False
+            self.up.down = self.down
+            self.down.up = self.up
 
-        if hasattr(self.column, 'size'):
-            self.column.size -= 1
+            if hasattr(self.column, 'size'):
+                self.column.size -= 1
 
     def detach_row(self):
         self.left.right = self.right
@@ -81,11 +84,13 @@ class Node(object):
         self.attach_column()
 
     def attach_column(self):
-        self.up.down = self
-        self.down.up = self
+        if not self.attached:
+            self.up.down = self
+            self.down.up = self
 
-        if hasattr(self.column, 'size'):
-            self.column.size += 1
+            if hasattr(self.column, 'size'):
+                self.column.size += 1
+            self.attached = True
 
     def attach_row(self):
         self.left.right = self
@@ -109,33 +114,90 @@ class ColumnNode(Node):
         return self.icolumn
 
     def detach(self):
-        self.detach_row()
+        if self.attached:
+            self.attached = False
+            self.detach_row()
 
-        for node in self:
-            for cell in node:
-                cell.detach_column()
+            for node in self:
+                for cell in node:
+                    cell.detach_column()
 
     def attach(self):
-        for node in self:
-            for cell in node:
-                cell.attach_column()
+        if not self.attached:
+            for node in self:
+                for cell in node:
+                    cell.attach_column()
 
-        self.attach_row()
+            self.attach_row()
+            self.attached = True
+
+
+class RootNode(ColumnNode):
+    def __init__(self, **kw):
+        kw.setdefault('name', 'root')
+        super(RootNode, self).__init__(**kw)
+
+    def __iter__(self):
+        return self.irow
+
+    def addLeft(self, node):
+        super(RootNode, self).addLeft(node)
+        self.column.size += 1
+
+    def addRight(self, node):
+        super(RootNode, self).addRight(node)
+        self.column.size += 1
+
+    def addAbove(self, node):
+        raise NotImplementedError
+
+    def addBelow(self, node):
+        raise NotImplementedError
+
+    def smallest(self):
+        small = None
+        for column in self:
+            if not small or small.size > column.size:
+                small = column
+        return small or self
 
 
 class Matrix(object):
     root = None
     solutions = None
 
-    def __init__(self, source=None):
+    def __init__(self, source=None, **kw):
         self.hidden = []
 
         if source:
-            self.build(source)
+            self.build(source, **kw)
+
+    def column(self, index):
+        for column in self.root:
+            if column.index == index:
+                return column
+
+            # Columns are ordered so we can cut out early if not found
+            if column.index > index:
+                return
+
+    def cell(self, row_index, column_index):
+        column = self.column(column_index)
+
+        if not column:
+            return
+
+        for cell in column:
+            if cell.row_index == row_index:
+                return cell
+
+            # Cells are ordered so we can cut out early if not found
+            if cell.row_index > row_index:
+                return
 
     def build(self, source):
         self.solutions = None
-        root = ColumnNode('root')
+        root = RootNode()
         columns = [root]
         self.root = root
 
@@ -147,6 +209,7 @@ class Matrix(object):
                 if len(columns) <= (j + 1):
                     name = 'c%s' % (j + 1)
                     column = ColumnNode(name)
+                    column.index = j
                     columns[-1].addRight(column)
                     columns.append(column)
 
@@ -174,53 +237,40 @@ class Matrix(object):
 
         self.solutions = []
         self.search()
+        self.solutions = [self.normalize_solution(s) for s in self.solutions]
         return self.solutions
 
     def search(self, selected=None):
-        column = self.root.right
+        selected = selected or []
+        column = self.root.smallest()
 
-        if column.right == column and selected:
+        if column.right == column and len(selected) > 0:
             self.solutions.append(selected[:])
 
         if column.size < 1:
             return
 
-        selected = selected or []
-        column.detach()
-
         for row in column:
             selected.append(row)
-            for node in row:
-                node.column.detach()
+            self.cover(row)
             self.search(selected=selected)
-            for node in row:
-                node.column.attach()
+            self.uncover(row)
             selected.remove(row)
-
-        column.attach()
         return self
 
-    def hide(self, column):
-        if column in self.hidden:
-            return
+    def normalize_solution(self, solution):
+        solution.sort(key=lambda n: '%s%s' % (n.row_index, n.column_index))
+        return solution
 
-        column.detach()
-        for row in column:
-            for node in row:
-                node.column.detach()
+    def cover(self, row):
+        row.column.detach()
+        for node in row:
+            node.column.detach()
 
-        self.hidden.append(column)
-
-    def show(self, column):
-        if column not in self.hidden:
-            return
-
-        for row in column:
-            for node in row:
-                node.column.attach()
-
-        column.attach()
-        self.hidden.remove(column)
+    def uncover(self, row):
+        for node in row:
+            node.column.attach()
+        row.column.attach()
 
 
 class UIMatrix(Matrix):
