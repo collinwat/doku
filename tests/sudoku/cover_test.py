@@ -1,16 +1,16 @@
 from __future__ import with_statement
 import unittest
 
-from doku.sudoku.cover import Solver
+from doku.sudoku.cover import DLXSolver
 from doku.sudoku.parse import StringParser
 
 
-class SudokuSolverTestCase(unittest.TestCase):
+class SudokuDLXSolverTestCase(unittest.TestCase):
     def test_solver_4(self):
         parser = StringParser(4)
         known = parser.parse('.3...1....4...3.')
         solution = parser.parse('2314412332411432')
-        solver = Solver(4, known=known)
+        solver = DLXSolver(4, known=known)
         solutions = solver.solve()
 
         assert len(solutions) == 1
@@ -42,7 +42,7 @@ class SudokuSolverTestCase(unittest.TestCase):
                                 '472319568'
                                 '863745219')
 
-        solver = Solver(9, known=known)
+        solver = DLXSolver(9, known=known)
         solutions = solver.solve()
 
         assert len(solutions) == 1

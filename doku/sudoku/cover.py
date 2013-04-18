@@ -115,11 +115,11 @@ class ExactCoverTable(object):
                 writer.writerow(row)
 
 
-class Solver(dlx.Matrix):
+class DLXSolver(dlx.Matrix):
 
     def __init__(self, size, known=None):
         self.known = set()
-        super(Solver, self).__init__(ExactCoverTable(size), known=known)
+        super(DLXSolver, self).__init__(ExactCoverTable(size), known=known)
 
     def build(self, table, known=None):
         """ This is an optimized version of the dlx Matrix implementation.

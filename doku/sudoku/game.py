@@ -29,7 +29,7 @@ class Board(object):
         return self._solutions
 
     def rebuild(self):
-        self.solver = cover.Solver(self.size, known=self.known)
+        self.solver = cover.DLXSolver(self.size, known=self.known)
         self._solutions = None
         self.reset()
 
