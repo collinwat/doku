@@ -1,4 +1,5 @@
 import math
+import re
 
 
 def box_size(size):
@@ -10,3 +11,22 @@ def box_size(size):
         raise ValueError(msg)
 
     return box_size
+
+
+def isplit(s, sep=None):
+    pattern = re.compile(r'\s+' if sep is None else re.escape(sep))
+    length = len(s)
+    pos = 0
+
+    while True:
+        match = pattern.search(s, pos)
+
+        if not match:
+            if pos < length or sep is not None:
+                yield s[pos:]
+            break
+
+        if pos < match.start() or sep is not None:
+            yield s[pos:match.start()]
+
+        pos = match.end()
