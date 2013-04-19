@@ -18,8 +18,8 @@ dev = [
 readme = ''
 
 # TODO: Figure out why this file is missing when running `tox`
-if os.path.isfile('README.rst'):
-    readme = open('README.rst').read()
+if os.path.isfile('README.md'):
+    readme = open('README.md').read()
 
 setup(name='doku',
       version='0.1',

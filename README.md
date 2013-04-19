@@ -14,6 +14,7 @@ Knuth's Algorithm X.
 is probably a more optimal solution. This means that the internals of this
 library are in flux and should not be considered production ready.
 
+
 Install
 -------
 
@@ -25,10 +26,9 @@ Quick:
 Manual:
 
     git clone git://github.com/collinwat/doku.git
-
     cd doku
-
     [sudo] python setup.py develop
+
 
 Usage
 -----
@@ -40,6 +40,7 @@ Overview:
 Solve a puzzle:
 
     doku solve .3...1....4...3.
+
 
 References
 ----------
